@@ -1,0 +1,67 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        google()
+    }
+    dependencies {
+        classpath "net.serenity-bdd:serenity-gradle-plugin:3.2.0"
+        classpath "io.freefair.gradle:lombok-plugin:5.1.1"
+    }
+}
+
+apply plugin: "java"
+apply plugin: "idea"
+apply plugin: "net.serenity-bdd.aggregator"
+apply plugin: "net.serenity-bdd.serenity-gradle-plugin"
+apply plugin: "io.freefair.lombok"
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+    google()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+test {
+    systemProperties System.getProperties()
+    systemProperty "file.encoding", "UTF-8"
+    systemProperty "cucumber.filter.tags", System.getProperty("cucumber.filter.tags")
+    systemProperty "cucumber.options", System.getProperty("cucumber.options")
+    testLogging.showStandardStreams = true
+}
+
+ext {
+    serenityVersion = "3.2.0"
+}
+
+dependencies {
+    implementation "com.google.api-client:google-api-client:1.24.1"
+    implementation "net.serenity-bdd:serenity-screenplay:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-core:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-junit:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-cucumber:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-ensure:${serenityVersion}"
+    implementation "com.googlecode.json-simple:json-simple:1.1.1"
+    implementation "io.appium:java-client:8.0.0"
+    implementation group: 'net.serenity-bdd', name: 'serenity-screenplay-rest', version: "$rootProject.ext.serenityVersion"
+    testImplementation "org.slf4j:slf4j-simple:1.7.36"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
+}
+
+serenity {
+    requirementsDir = "src/test/resources/features"
+}
+
+test.finalizedBy(aggregate)
